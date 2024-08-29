@@ -36,7 +36,6 @@ public class LoginController {
             @ApiImplicitParam(name="password",value = "密码",required = true)
     })
     public ApiResult login(HttpServletRequest request, @RequestParam String account,@RequestParam String password) {
-        //TODO
         if (redisUtil.hasKey("lockAccount:"+account)){
             long expire = redisUtil.getExpire("lockAccount:" + account);
             if(expire>0){
@@ -66,8 +65,7 @@ public class LoginController {
     @GetMapping("/logout")
     @ApiOperation(value = "退出")
     public ApiResult logout(HttpServletRequest request) {
-        //TODO
-        return null;
+        return new ApiResult<>(200,"退出成功",null);
     }
 
 }
