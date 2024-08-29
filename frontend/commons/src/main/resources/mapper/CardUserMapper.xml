@@ -23,4 +23,7 @@
         phone,level,createtime,
         updatetime
     </sql>
+    <select id="login" resultType="com.itheima.prize.commons.db.entity.CardUser">
+        select * from card_user where uname=#{account} and passwd=#{passwd}
+    </select>
 </mapper>

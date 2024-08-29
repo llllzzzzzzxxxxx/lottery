@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @Entity com.itheima.prize.commons.db.entity.CardUser
 */
 public interface CardUserMapper extends BaseMapper<CardUser> {
-
+    public CardUser login(String account, String passwd);
 }
 
 

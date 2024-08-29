@@ -37,7 +37,30 @@ public class LoginController {
     })
     public ApiResult login(HttpServletRequest request, @RequestParam String account,@RequestParam String password) {
         //TODO
-        return null;
+        if (redisUtil.hasKey("lockAccount:"+account)){
+            long expire = redisUtil.getExpire("lockAccount:" + account);
+            if(expire>0){
+                return new ApiResult(400,"尝试次数过多，请"+expire+"秒后重试",null);
+            }else {
+                redisUtil.del("lockAccount:"+account);
+            }
+        }
+        CardUser user = userService.login(account,password);
+        if (user ==null){
+            if(!redisUtil.hasKey("errorTimes:"+account)){
+                redisUtil.set("errorTimes:"+account,1);
+            }else {
+                redisUtil.incr("errorTimes:"+account,1);
+            }
+            if((int)redisUtil.get("errorTimes:"+account)>=5){
+                redisUtil.del("errorTimes:"+account);
+                redisUtil.set("lockAccount:"+account,1);
+                redisUtil.expire("lockAccount:"+account,300);
+                return new ApiResult(400,"密码错误5次，请5分钟之后尝试",null);
+            }
+            return new ApiResult(400,"用户名或密码错误",null);
+        }
+        return new ApiResult(200,"登录成功",user);
     }
 
     @GetMapping("/logout")

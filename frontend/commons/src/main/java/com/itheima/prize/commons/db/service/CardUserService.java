@@ -10,4 +10,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface CardUserService extends IService<CardUser> {
 
+    CardUser login(String account, String password);
 }
