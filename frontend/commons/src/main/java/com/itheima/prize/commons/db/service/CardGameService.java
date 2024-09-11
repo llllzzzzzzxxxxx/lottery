@@ -2,6 +2,10 @@ package com.itheima.prize.commons.db.service;
 
 import com.itheima.prize.commons.db.entity.CardGame;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.itheima.prize.commons.db.entity.CardProductDto;
+import com.itheima.prize.commons.utils.ApiResult;
+
+import java.util.List;
 
 /**
 * @author shawn
@@ -9,5 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2023-12-26 11:58:48
 */
 public interface CardGameService extends IService<CardGame> {
+
+    ApiResult getlist(int status, int curpage, int limit);
 
 }

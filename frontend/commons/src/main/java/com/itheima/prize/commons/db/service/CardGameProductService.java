@@ -3,6 +3,8 @@ package com.itheima.prize.commons.db.service;
 import com.itheima.prize.commons.db.entity.CardGameProduct;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
 * @author shawn
 * @description 针对表【card_game_product】的数据库操作Service
@@ -10,4 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface CardGameProductService extends IService<CardGameProduct> {
 
+    List<CardGameProduct> getByGameId(int gameid);
 }

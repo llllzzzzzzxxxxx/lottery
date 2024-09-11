@@ -28,4 +28,20 @@
         price,gameid,userid,
         productid,hittime
     </sql>
+    <select id="hit" resultType="com.itheima.prize.commons.db.entity.ViewCardUserHit">
+        select
+        <include refid="Base_Column_List"/>
+        from view_card_user_hit
+        <where>
+            <if test="gameid != -1">
+                id=#{gameid}
+            </if>
+            <if test="userid != null">
+                and userid=#{userid}
+            </if>
+        </where>
+        <if test="userid != null">
+            order by hittime desc
+        </if>
+    </select>
 </mapper>

@@ -1,5 +1,6 @@
 package com.itheima.prize.commons.db.mapper;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itheima.prize.commons.db.entity.ViewCardUserHit;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface ViewCardUserHitMapper extends BaseMapper<ViewCardUserHit> {
 
+    Page<ViewCardUserHit> hit(Page<ViewCardUserHit> page, int gameid, Integer userid);
 }
 
 

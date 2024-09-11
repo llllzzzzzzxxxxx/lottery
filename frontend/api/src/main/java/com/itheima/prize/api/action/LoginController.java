@@ -39,7 +39,7 @@ public class LoginController {
         if (redisUtil.hasKey("lockAccount:"+account)){
             long expire = redisUtil.getExpire("lockAccount:" + account);
             if(expire>0){
-                return new ApiResult(400,"尝试次数过多，请"+expire+"秒后重试",null);
+                return new ApiResult(0,"尝试次数过多，请"+expire+"秒后重试",null);
             }else {
                 redisUtil.del("lockAccount:"+account);
             }
@@ -55,17 +55,19 @@ public class LoginController {
                 redisUtil.del("errorTimes:"+account);
                 redisUtil.set("lockAccount:"+account,1);
                 redisUtil.expire("lockAccount:"+account,300);
-                return new ApiResult(400,"密码错误5次，请5分钟之后尝试",null);
+                return new ApiResult(0,"密码错误5次，请5分钟之后尝试",null);
             }
-            return new ApiResult(400,"用户名或密码错误",null);
+            return new ApiResult(0,"用户名或密码错误",null);
         }
-        return new ApiResult(200,"登录成功",user);
+        request.getSession().setAttribute("user",user);
+        return new ApiResult(1,"登录成功",user);
     }
 
     @GetMapping("/logout")
     @ApiOperation(value = "退出")
     public ApiResult logout(HttpServletRequest request) {
-        return new ApiResult<>(200,"退出成功",null);
+        request.getSession().setAttribute("user",null);
+        return new ApiResult<>(1,"退出成功",null);
     }
 
 }

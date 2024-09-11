@@ -6,6 +6,8 @@ import com.itheima.prize.commons.db.service.CardGameProductService;
 import com.itheima.prize.commons.db.mapper.CardGameProductMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
 * @author shawn
 * @description 针对表【card_game_product】的数据库操作Service实现
@@ -15,6 +17,10 @@ import org.springframework.stereotype.Service;
 public class CardGameProductServiceImpl extends ServiceImpl<CardGameProductMapper, CardGameProduct>
     implements CardGameProductService{
 
+    @Override
+    public List<CardGameProduct> getByGameId(int gameid) {
+        return this.lambdaQuery().eq(CardGameProduct::getGameid,gameid).list();
+    }
 }
 
 

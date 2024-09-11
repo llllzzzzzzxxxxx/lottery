@@ -39,8 +39,9 @@ public class UserController {
     @GetMapping("/info")
     @ApiOperation(value = "用户信息")
     public ApiResult info(HttpServletRequest request) {
-        //TODO
-        return null;
+        CardUser user= (CardUser) request.getSession().getAttribute("user");
+        if (user==null)return new ApiResult(0,"用户未登录",null);
+        return new ApiResult<>(1,"成功",user);
     }
 
     @GetMapping("/hit/{gameid}/{curpage}/{limit}")
@@ -52,7 +53,15 @@ public class UserController {
     })
     public ApiResult hit(@PathVariable int gameid,@PathVariable int curpage,@PathVariable int limit,HttpServletRequest request) {
         //TODO
-        return null;
+        CardUser user = (CardUser) request.getSession().getAttribute("user");
+        if (user==null)return new ApiResult(0,"用户未登录",null);
+        Integer id = user.getId();
+        Page page= hitService.hit(gameid,curpage,limit,id);
+        if (page!=null){
+            return new ApiResult(1,"成功",new PageBean(page));
+        }
+
+        return new ApiResult(0,"无奖品",null);
     }
 
 

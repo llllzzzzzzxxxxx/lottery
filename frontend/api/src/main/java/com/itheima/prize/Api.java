@@ -18,7 +18,4 @@ public class Api {
         new SpringApplicationBuilder(Api.class).run(args);
     }
 
-
-
-
 }
