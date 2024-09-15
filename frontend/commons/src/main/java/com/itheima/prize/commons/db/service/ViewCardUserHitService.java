@@ -1,11 +1,7 @@
 package com.itheima.prize.commons.db.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.itheima.prize.commons.db.entity.CardGame;
-import com.itheima.prize.commons.db.entity.CardUser;
 import com.itheima.prize.commons.db.entity.ViewCardUserHit;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.itheima.prize.commons.utils.ApiResult;
 import com.itheima.prize.commons.utils.PageBean;
 
 /**
@@ -16,6 +12,6 @@ import com.itheima.prize.commons.utils.PageBean;
 public interface ViewCardUserHitService extends IService<ViewCardUserHit> {
 
 
-    Page hit(int gameid, int curpage, int limit, Integer id);
+    PageBean<ViewCardUserHit> hit(int gameid, int curpage, int limit, Integer id);
 
 }

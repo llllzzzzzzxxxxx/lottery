@@ -51,14 +51,14 @@ public class UserController {
             @ApiImplicitParam(name = "curpage",value = "第几页",defaultValue = "1",dataType = "int", example = "1"),
             @ApiImplicitParam(name = "limit",value = "每页条数",defaultValue = "10",dataType = "int",example = "3")
     })
-    public ApiResult hit(@PathVariable int gameid,@PathVariable int curpage,@PathVariable int limit,HttpServletRequest request) {
+    public ApiResult<PageBean<ViewCardUserHit>> hit(@PathVariable int gameid,@PathVariable int curpage,@PathVariable int limit,HttpServletRequest request) {
         //TODO
         CardUser user = (CardUser) request.getSession().getAttribute("user");
         if (user==null)return new ApiResult(0,"用户未登录",null);
         Integer id = user.getId();
-        Page page= hitService.hit(gameid,curpage,limit,id);
+        PageBean<ViewCardUserHit> page= hitService.hit(gameid,curpage,limit,id);
         if (page!=null){
-            return new ApiResult(1,"成功",new PageBean(page));
+            return new ApiResult(1,"成功",page);
         }
 
         return new ApiResult(0,"无奖品",null);

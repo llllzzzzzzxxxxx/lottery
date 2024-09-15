@@ -77,7 +77,8 @@ public class GameController {
     })
     public ApiResult<PageBean<ViewCardUserHit>> hit(@PathVariable int gameid,@PathVariable int curpage,@PathVariable int limit) {
         //TODO
-        return null;
+        PageBean<ViewCardUserHit> hit = hitService.hit(gameid, curpage, limit, null);
+        return new ApiResult<>(1,"成功",hit);
     }
 
 
