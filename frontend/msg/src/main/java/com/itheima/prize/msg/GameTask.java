@@ -3,10 +3,7 @@ package com.itheima.prize.msg;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.itheima.prize.commons.config.RedisKeys;
 import com.itheima.prize.commons.db.entity.*;
-import com.itheima.prize.commons.db.service.CardGameProductService;
-import com.itheima.prize.commons.db.service.CardGameRulesService;
-import com.itheima.prize.commons.db.service.CardGameService;
-import com.itheima.prize.commons.db.service.GameLoadService;
+import com.itheima.prize.commons.db.service.*;
 import com.itheima.prize.commons.utils.RedisUtil;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -34,6 +31,8 @@ public class GameTask {
     @Autowired
     private GameLoadService gameLoadService;
     @Autowired
+    private CardProductService productService;
+    @Autowired
     private RedisUtil redisUtil;
 
     @Scheduled(cron = "0 * * * * ?")
@@ -48,18 +47,25 @@ public class GameTask {
                 long endTime = game.getEndtime().getTime();
                 long l1 = endTime - startTime + 1;
                 if (!redisUtil.hasKey(RedisKeys.TOKEN+game.getId())){
-                    redisUtil.set(RedisKeys.INFO+game.getId(),game,-1);
-                    gameProductService.getByGameId(game.getId()).forEach(product -> {
-                    long l = random.nextInt((int) l1) + startTime ;
-                    long token = l*1000+(long) random.nextInt(1000);
-                    redisUtil.hset(RedisKeys.TOKEN+game.getId(),token+"",product.getId(),-1);
-                    redisUtil.set(RedisKeys.PRODUCT + game.getId() + token, product);
-                    tokens.add(token);
-                });
-
+                    redisUtil.set(RedisKeys.INFO+game.getId(),game,(endTime-new Date().getTime())/1000);
+//                    gameProductService.getByGameId(game.getId()).forEach(product -> {
+//                    long l = random.nextInt((int) l1) + startTime ;
+//                    long token = l*1000+(long) random.nextInt(1000);
+//                    redisUtil.hset(RedisKeys.TOKEN+game.getId(),token+"",product.getId(),(endTime-new Date().getTime())/1000);
+//                        List<CardProductDto> products = gameLoadService.getByGameId(game.getId());
+//                        redisUtil.set(RedisKeys.PRODUCT + game.getId() + token, ,(endTime-new Date().getTime())/1000);
+//                    tokens.add(token);
+//                });
+                    gameLoadService.getByGameId(game.getId()).forEach(product -> {
+                        long l = random.nextInt((int) l1) + startTime ;
+                        long token = l*1000+(long) random.nextInt(1000);
+                        redisUtil.hset(RedisKeys.TOKEN+game.getId(),token+"",product.getId(),(endTime-new Date().getTime())/1000);
+                        redisUtil.set(RedisKeys.PRODUCT + game.getId() + token, product,(endTime-new Date().getTime())/1000);
+                        tokens.add(token);
+                    });
                 gameRulesService.list(new QueryWrapper<CardGameRules>().eq("gameid",game.getId())).forEach(rule -> {
-                    redisUtil.hset(RedisKeys.MAXGOAL+game.getId(),rule.getUserlevel()+"",rule.getGoalTimes());
-                    redisUtil.hset(RedisKeys.MAXENTER+game.getId(),rule.getUserlevel()+"",rule.getEnterTimes());
+                    redisUtil.hset(RedisKeys.MAXGOAL+game.getId(),rule.getUserlevel()+"",rule.getGoalTimes(),(endTime-new Date().getTime())/1000);
+                    redisUtil.hset(RedisKeys.MAXENTER+game.getId(),rule.getUserlevel()+"",rule.getEnterTimes(),(endTime-new Date().getTime())/1000);
                 });
                 tokens.sort(Comparator.naturalOrder());
                 redisUtil.rightPushAll(RedisKeys.TOKENS+game.getId(),tokens);

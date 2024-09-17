@@ -40,6 +40,8 @@ public class ActController {
     @Autowired
     private LuaScript luaScript;
 
+    static final int default_max_enter = 10;
+    static final int default_max_goal = 10;
     @GetMapping("/limits/{gameid}")
     @ApiOperation(value = "剩余次数")
     @ApiImplicitParams({
@@ -100,7 +102,32 @@ public class ActController {
     })
     public ApiResult<Object> act(@PathVariable int gameid, HttpServletRequest request){
         //TODO
-        return null;
+        CardGame cardGame = (CardGame) redisUtil.get(RedisKeys.INFO + gameid);
+        if (cardGame.getStarttime().getTime()>= new Date().getTime()||cardGame==null)return new ApiResult<>(-1,"活动未开始",null);
+        if (cardGame.getEndtime().getTime()<= new Date().getTime())return new ApiResult<>(-1,"活动已结束",null);
+        CardUser user = (CardUser) request.getSession().getAttribute("user");
+        Integer userLevel = user.getLevel();
+        if (userLevel == null)return new ApiResult<>(-1,"未登陆",null);
+        Integer maxGoal = (Integer) redisUtil.hget(RedisKeys.MAXGOAL + gameid, userLevel.toString());
+        Integer maxEnter = (Integer) redisUtil.hget(RedisKeys.MAXENTER + gameid, userLevel.toString());
+        if (maxGoal==null)maxGoal=default_max_goal;
+        if (maxEnter==null)maxEnter=default_max_enter;
+        if (!redisUtil.hasKey(RedisKeys.USERENTER+gameid+"_"+user.getId()))redisUtil.set(RedisKeys.USERENTER+gameid+"_"+user.getId(),maxEnter);
+        if (!redisUtil.hasKey(RedisKeys.USERHIT+gameid+"_"+user.getId()))redisUtil.set(RedisKeys.USERHIT+gameid+"_"+user.getId(),maxGoal);
+        Integer userEnter =(Integer) redisUtil.get(RedisKeys.USERENTER + gameid + "_" + user.getId());
+        Integer userHit = (Integer) redisUtil.get(RedisKeys.USERHIT+gameid+"_"+user.getId());
+        if (userEnter == null || userEnter <= 0)return new ApiResult<>(-1,"抽奖次数已用完",null);
+        if (userHit == null || userHit <= 0)return new ApiResult<>(-1,"已到达最大中奖次数",null);
+        Long token = luaScript.tokenCheck(RedisKeys.TOKENS + gameid, String.valueOf(new Date().getTime()));
+        redisUtil.decr(RedisKeys.USERENTER + gameid + "_" + user.getId(), 1);
+        if (token == 0){
+            return new ApiResult<>(-1,"奖品已抽光",null);
+        }else if (token == 1){
+            return new ApiResult<>(-1,"未中奖",null);
+        }
+        CardProduct prize = (CardProduct) redisUtil.get(RedisKeys.PRODUCT + gameid + token);
+        redisUtil.decr(RedisKeys.USERHIT + gameid + "_" + user.getId(), 1);
+        return new ApiResult<>(1,"恭喜中奖",prize);
     }
 
     @GetMapping("/info/{gameid}")
@@ -109,7 +136,6 @@ public class ActController {
             @ApiImplicitParam(name="gameid",value = "活动id",example = "1",required = true)
     })
     public ApiResult info(@PathVariable int gameid){
-        //TODO
         Map map = new LinkedHashMap();
         Map maxenter = new LinkedHashMap();
         Map maxgoal = new LinkedHashMap();
