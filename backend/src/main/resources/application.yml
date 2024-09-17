@@ -19,12 +19,12 @@ ruoyi:
 #例如：http://192.168.64.100:9005/prize/1701754725603.jpeg
 #所以要保障其可访问性，尤其是docker部署的时候，应该是宿主机暴露的端口！
 minio:
-  url: http://192.168.63.128:9000
-  host: 192.168.63.128
+  url: http://139.9.51.109:9000
+  host: 139.9.51.109
   port: 9000
   bucket: prize
-  username: minio
-  password: clock1234
+  username: mingri
+  password: mingri1234
 
 # 开发环境配置
 server:

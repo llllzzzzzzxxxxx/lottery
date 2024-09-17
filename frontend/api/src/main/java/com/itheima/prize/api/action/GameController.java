@@ -53,7 +53,6 @@ public class GameController {
             @ApiImplicitParam(name="gameid",value = "活动id",example = "1",required = true)
     })
     public ApiResult<CardGame> info(@PathVariable int gameid) {
-        //TODO
         CardGame game=gameService.getById(gameid);
         return new ApiResult<>(1,"成功",game);
     }
@@ -76,7 +75,6 @@ public class GameController {
             @ApiImplicitParam(name = "limit",value = "每页条数",defaultValue = "10",dataType = "int",example = "3",required = true)
     })
     public ApiResult<PageBean<ViewCardUserHit>> hit(@PathVariable int gameid,@PathVariable int curpage,@PathVariable int limit) {
-        //TODO
         PageBean<ViewCardUserHit> hit = hitService.hit(gameid, curpage, limit, null);
         return new ApiResult<>(1,"成功",hit);
     }

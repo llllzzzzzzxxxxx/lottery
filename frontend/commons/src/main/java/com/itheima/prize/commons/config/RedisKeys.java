@@ -5,6 +5,7 @@ public class RedisKeys {
     public final static String INFO="game_info_";
     //令牌前缀
     public final static String TOKEN="game_token_";
+    public final static String PRODUCT="product_";
     //令牌桶key
     public final static String TOKENS="game_tokens_";
     //最大中奖数
