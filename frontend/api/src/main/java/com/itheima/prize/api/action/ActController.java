@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +33,8 @@ public class ActController {
 
     @Autowired
     private RedisUtil redisUtil;
+    @Autowired
+    private RedisTemplate redisTemplate;
     @Autowired
     private RabbitTemplate rabbitTemplate;
     @Autowired
@@ -107,6 +110,30 @@ public class ActController {
     })
     public ApiResult info(@PathVariable int gameid){
         //TODO
-        return null;
+        Map map = new LinkedHashMap();
+        Map maxenter = new LinkedHashMap();
+        Map maxgoal = new LinkedHashMap();
+        redisTemplate.opsForHash().entries(RedisKeys.MAXENTER + gameid).forEach((k,v)->{
+            maxenter.put(k,v);
+        });
+        redisTemplate.opsForHash().entries(RedisKeys.MAXGOAL + gameid).forEach((k,v)->{
+           maxgoal.put(k,v);
+        });
+        Map<String, CardGameProduct> products = new LinkedHashMap<>();
+        CardGame gameInfo = (CardGame) redisUtil.get(RedisKeys.INFO + gameid);
+        List<Long> tokens = redisTemplate.opsForList().range(RedisKeys.TOKENS + gameid, 0, -1);
+        for (Long token:tokens) {
+            long l = token / 1000;
+            Date randomDate = new Date(l);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            String formattedDate = sdf.format(randomDate);
+            CardGameProduct product = (CardGameProduct) redisUtil.get(RedisKeys.PRODUCT+gameid+ token);
+            products.put(formattedDate, product);
+        }
+        map.put("gameInfo",gameInfo);
+        map.put("maxenter",maxenter);
+        map.put("maxgoal",maxgoal);
+        map.put("gametokens",products);
+        return new ApiResult<>(200,"缓存信息",map);
     }
 }
