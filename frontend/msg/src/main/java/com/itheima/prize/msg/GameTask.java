@@ -47,25 +47,17 @@ public class GameTask {
                 long endTime = game.getEndtime().getTime();
                 long l1 = endTime - startTime + 1;
                 if (!redisUtil.hasKey(RedisKeys.TOKEN+game.getId())){
-                    redisUtil.set(RedisKeys.INFO+game.getId(),game,(endTime-new Date().getTime())/1000);
-//                    gameProductService.getByGameId(game.getId()).forEach(product -> {
-//                    long l = random.nextInt((int) l1) + startTime ;
-//                    long token = l*1000+(long) random.nextInt(1000);
-//                    redisUtil.hset(RedisKeys.TOKEN+game.getId(),token+"",product.getId(),(endTime-new Date().getTime())/1000);
-//                        List<CardProductDto> products = gameLoadService.getByGameId(game.getId());
-//                        redisUtil.set(RedisKeys.PRODUCT + game.getId() + token, ,(endTime-new Date().getTime())/1000);
-//                    tokens.add(token);
-//                });
+                    redisUtil.set(RedisKeys.INFO+game.getId(),game,(endTime-startTime)/1000);
                     gameLoadService.getByGameId(game.getId()).forEach(product -> {
                         long l = random.nextInt((int) l1) + startTime ;
                         long token = l*1000+(long) random.nextInt(1000);
-                        redisUtil.hset(RedisKeys.TOKEN+game.getId(),token+"",product.getId(),(endTime-new Date().getTime())/1000);
-                        redisUtil.set(RedisKeys.PRODUCT + game.getId() + token, product,(endTime-new Date().getTime())/1000);
+                        redisUtil.hset(RedisKeys.TOKEN+game.getId(),token+"",product.getId(),(endTime-startTime)/1000);
+                        redisUtil.set(RedisKeys.PRODUCT + game.getId() + token, product,(endTime-startTime)/1000);
                         tokens.add(token);
                     });
                 gameRulesService.list(new QueryWrapper<CardGameRules>().eq("gameid",game.getId())).forEach(rule -> {
-                    redisUtil.hset(RedisKeys.MAXGOAL+game.getId(),rule.getUserlevel()+"",rule.getGoalTimes(),(endTime-new Date().getTime())/1000);
-                    redisUtil.hset(RedisKeys.MAXENTER+game.getId(),rule.getUserlevel()+"",rule.getEnterTimes(),(endTime-new Date().getTime())/1000);
+                    redisUtil.hset(RedisKeys.MAXGOAL+game.getId(),rule.getUserlevel()+"",rule.getGoalTimes(),(endTime-startTime)/1000);
+                    redisUtil.hset(RedisKeys.MAXENTER+game.getId(),rule.getUserlevel()+"",rule.getEnterTimes(),(endTime-startTime)/1000);
                 });
                 tokens.sort(Comparator.naturalOrder());
                 redisUtil.rightPushAll(RedisKeys.TOKENS+game.getId(),tokens);
