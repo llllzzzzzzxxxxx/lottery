@@ -126,7 +126,18 @@ public class ActController {
             return new ApiResult<>(-1,"未中奖",null);
         }
         CardProduct prize = (CardProduct) redisUtil.get(RedisKeys.PRODUCT + gameid + token);
-        redisUtil.decr(RedisKeys.USERHIT + gameid + "_" + user.getId(), 1);
+        redisUtil.decr(RedisKeys.USERHIT + gameid + "_" + user.getId(), 1);//中奖
+        CardUserHit cardUserHit = new CardUserHit();//用户中奖后的信息以及奖品通过该队列来投放
+        cardUserHit.setGameid(gameid);
+        cardUserHit.setProductid(prize.getId());
+        cardUserHit.setUserid(user.getId());
+        cardUserHit.setHittime(new Date());
+        rabbitTemplate.convertAndSend(RabbitKeys.EXCHANGE_DIRECT,RabbitKeys.QUEUE_HIT,JSON.toJSONString(cardUserHit));
+        CardUserGame cardUserGame = new CardUserGame();//用户参与的活动通过该队列投放
+        cardUserGame.setGameid(gameid);
+        cardUserGame.setUserid(user.getId());
+        cardUserGame.setCreatetime(new Date());
+        rabbitTemplate.convertAndSend(RabbitKeys.EXCHANGE_DIRECT,RabbitKeys.QUEUE_PLAY,JSON.toJSONString(cardUserGame));
         return new ApiResult<>(1,"恭喜中奖",prize);
     }
 
